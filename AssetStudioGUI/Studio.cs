@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Linq;
@@ -29,7 +30,8 @@ namespace AssetStudioGUI
 
     internal enum ExportListType
     {
-        XML
+        XML,
+        CSV
     }
 
     internal static class Studio
@@ -144,6 +146,7 @@ namespace AssetStudioGUI
             Progress.Reset();
             foreach (var assetsFile in assetsManager.assetsFileList)
             {
+                var compRatio = assetsFile.m_compressionRatio;
                 foreach (var asset in assetsFile.Objects)
                 {
                     var assetItem = new AssetItem(asset);
@@ -238,6 +241,8 @@ namespace AssetStudioGUI
                     {
                         exportableAssets.Add(assetItem);
                     }
+
+                    assetItem.CompressedSize = (long)(compRatio * assetItem.FullSize);
                     Progress.Report(++i, objectCount);
                 }
             }
@@ -494,6 +499,26 @@ namespace AssetStudioGUI
                         doc.Save(filename);
 
                         break;
+
+                    case ExportListType.CSV:
+                        System.IO.StreamWriter file = new System.IO.StreamWriter(Path.Combine(savePath, "assets.csv"));
+                        file.WriteLine("Name,Type,FullSize,CompressedSize,Container,Category1,Category2,Category3,Category4,Category5,Category6,Category7");
+
+                        toExportAssets.Sort((a, b) =>
+                        {
+                            var asf = a.FullSize;
+                            var bsf = b.FullSize;
+                            return asf.CompareTo(bsf);
+                        });
+
+                        foreach (var asset in toExportAssets)
+                        {
+                            string data = GetCSValueFromAsset(asset);
+                            file.WriteLine(data);
+                        }
+
+                        file.Close();
+                        break;
                 }
 
                 var statusText = $"Finished exporting asset list with {toExportAssets.Count()} items.";
@@ -505,6 +530,33 @@ namespace AssetStudioGUI
                     Process.Start(savePath);
                 }
             });
+        }
+
+        public static string GetCSValueFromAsset(AssetItem asset)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            if(asset.Text.Contains(','))
+            {
+                stringBuilder.Append($"\"{asset.Text}\"");
+            }
+            else
+            {
+                stringBuilder.Append(asset.Text);
+            }
+            
+            stringBuilder.Append($",{asset.TypeString}");
+            stringBuilder.Append($",{asset.FullSize.ToString()}");
+            stringBuilder.Append($",{asset.CompressedSize.ToString()}");
+            stringBuilder.Append($",{asset.Container}");
+
+            var categorys = asset.Container.Split('/');
+
+            foreach(var category in categorys)
+            {
+                stringBuilder.Append($",{category}");
+            }
+
+            return stringBuilder.ToString();
         }
 
         public static void ExportSplitObjects(string savePath, TreeNodeCollection nodes)

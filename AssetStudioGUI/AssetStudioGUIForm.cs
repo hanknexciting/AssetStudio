@@ -1456,6 +1456,20 @@ namespace AssetStudioGUI
             ExportAssetsList(ExportFilter.Filtered);
         }
 
+        private void allAssetsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ExportAssetsList(ExportFilter.All, ExportListType.CSV);
+        }
+
+        private void selectedAssetsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ExportAssetsList(ExportFilter.Selected, ExportListType.CSV);
+        }
+
+        private void filteredAssetsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ExportAssetsList(ExportFilter.Filtered, ExportListType.CSV);
+        }
         private void exportAllObjectssplitToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             if (sceneTreeView.Nodes.Count > 0)
@@ -1547,7 +1561,7 @@ namespace AssetStudioGUI
             }
         }
 
-        private void ExportAssetsList(ExportFilter type)
+        private void ExportAssetsList(ExportFilter type, ExportListType exportType = ExportListType.XML)
         {
             // XXX: Only exporting as XML for now, but would JSON(/CSV/other) be useful too?
 
@@ -1571,7 +1585,7 @@ namespace AssetStudioGUI
                             toExportAssets = visibleAssets;
                             break;
                     }
-                    Studio.ExportAssetsList(saveFolderDialog.Folder, toExportAssets, ExportListType.XML);
+                    Studio.ExportAssetsList(saveFolderDialog.Folder, toExportAssets, exportType);
                 }
             }
             else

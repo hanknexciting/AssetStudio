@@ -21,6 +21,7 @@ namespace AssetStudio
         public SerializedFileHeader header;
         private byte m_FileEndianess;
         public string unityVersion = "2.5.0f5";
+        public float m_compressionRatio = 1.0f;
         public BuildTarget m_TargetPlatform = BuildTarget.UnknownPlatform;
         private bool m_EnableTypeTree = true;
         public List<SerializedType> m_Types;
@@ -224,6 +225,11 @@ namespace AssetStudio
             buildType = new BuildType(buildSplit[0]);
             var versionSplit = Regex.Replace(stringVersion, @"\D", ".").Split(new[] { "." }, StringSplitOptions.RemoveEmptyEntries);
             version = versionSplit.Select(int.Parse).ToArray();
+        }
+
+        public void SetCompressionRatio(float compressionRatio)
+        {
+            m_compressionRatio = compressionRatio;
         }
 
         private SerializedType ReadSerializedType(bool isRefType)

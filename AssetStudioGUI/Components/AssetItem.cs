@@ -11,6 +11,7 @@ namespace AssetStudioGUI
         public string TypeString;
         public long m_PathID;
         public long FullSize;
+        public long CompressedSize;
         public ClassIDType Type;
         public string InfoText;
         public string UniqueID;
